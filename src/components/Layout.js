@@ -1,21 +1,50 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import Signup from '../auth/Signup';
-import Signin from '../auth/Signin';
+import { Link, withRouter } from 'react-router-dom';
+import { isAuth, signout } from '../auth/authHelpers';
 
-const Layout = ({children}) => {
+const Layout = ({children, match, history}) => {
 
+    const isActive = path => {
+        if (match.path === path) {
+            return { color: '#000' };
+        } else {
+            return { color: '#fff' };
+        }
+    };
     const nav = () => (
         <ul className="nav nav-tabs bg-primary">
             <li className="nav-item">
-                <Link to="/" className="text-light nav-link">Home</Link>
+                <Link to="/" className="nav-link" style={isActive('/')}>Home</Link>
             </li>
-<li className="nav-item">
-                <Link to="/signin" className="text-light nav-link">Login</Link>
-            </li>
-	<li className="nav-item">
-                <Link to="/signup" className="text-light nav-link">SignUp</Link>
-            </li>
+{!isAuth() && (
+                <>
+                    <li className="nav-item">
+                        <Link to="/signin" className="nav-link" style={isActive('/signin')}>
+                            Login
+                        </Link>
+                    </li>
+                    <li className="nav-item">
+                        <Link to="/signup" className="nav-link" style={isActive('/signup')}>
+                            Signup
+                        </Link>
+                    </li>
+                </>
+            )}
+	{isAuth() && (
+                <li className="nav-item">
+                    <span
+                        className="nav-link"
+                        style={{ cursor: 'pointer', color: '#fff' }}
+                        onClick={() => {
+                            signout(() => {
+                                history.push('/');
+                            });
+                        }}
+                    >
+                        Signout
+                    </span>
+                </li>
+            )}
 	
         </ul> 
     )
@@ -28,4 +57,4 @@ const Layout = ({children}) => {
      );
 }
  
-export default Layout;
+export default withRouter(Layout);
